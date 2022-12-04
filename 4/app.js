@@ -14,4 +14,12 @@ fs.readFile('input.txt', 'utf8', function(_,data) {
                 ? 1 : 0;
     }).reduce((carry, curr) => carry + curr, 0);
     console.log(fullyOverlap);
+
+    const isOverlap = lines.map(function(line) {
+        const sections = [...line.matchAll(/(\d+)\-(\d+)/g)]
+            .map(section => range(Number(section[1]), Number(section[2]) + 1));
+        const overlap = intersection(...sections);
+        return overlap.length > 0 ? 1 : 0;
+    }).reduce((carry, curr) => carry + curr, 0);
+    console.log(isOverlap);
 });
