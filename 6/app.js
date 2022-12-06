@@ -4,15 +4,17 @@ const { log } = require('console');
 const fs = require('fs');
 const { uniq } = require('lodash');
 
+const PACKET_LEN = 14;
+
 const repetitionAfterFourChars = (data) => {
     let quadruple;
     let j;
-    for (let i = 0; i < data.length - 3; i++) {
+    for (let i = 0; i < data.length - PACKET_LEN - 1; i++) {
         quadruple = [];
-        for (j = 0; j < 4; j++) {
+        for (j = 0; j < PACKET_LEN; j++) {
             quadruple.push(data[i + j]);
         }
-        if (uniq(quadruple).length === 4) {
+        if (uniq(quadruple).length === PACKET_LEN) {
             return i + j;
         }
     }
