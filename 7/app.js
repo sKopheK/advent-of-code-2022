@@ -2,9 +2,11 @@
 
 const { log } = require('console');
 const fs = require('fs');
-const { set, get, filter, forEach, sum } = require('lodash');
+const { set, get, filter, forEach, sum, min } = require('lodash');
 
 const MAX_SIZE = 100000;
+const TOTAL_SPACE = 70000000;
+const REQUIRED_SPACE = 30000000;
 
 const getDirSizes = (tree, sizeTree = {}, path = '') => {
     forEach(tree, (node, name) => {
@@ -60,5 +62,10 @@ fs.readFile(__dirname + '\\input.txt', 'utf8', function(_,data) {
         }
     });
     const dirSizes = getDirSizes(tree);
+    // log(dirSizes);
     log(sum(filter(dirSizes, size => size < MAX_SIZE)));
+
+    const sizeToFreeUp = REQUIRED_SPACE - (TOTAL_SPACE - dirSizes['[/]']);
+    const smallestBigEnoughDirSize = min(filter(dirSizes, (size) => size > sizeToFreeUp));
+    log(smallestBigEnoughDirSize);
 });
