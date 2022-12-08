@@ -2,26 +2,47 @@
 
 const { log } = require('console');
 const fs = require('fs');
-const { max } = require('lodash');
+const { max, reduce, findIndex } = require('lodash');
+
+const getTreeHeightsCardinals = (trees, index) => {
+    const side = Math.sqrt(trees.length);
+    return {
+        n: trees.filter((_, i) => i < index && i % side === index % side).reverse(),
+        s: trees.filter((_, i) => i > index && i % side === index % side),
+        w: trees.filter((_, i) => i < index && i >= index - (index % side)).reverse(),
+        e: trees.filter((_, i) => i > index && i <= index + (side - 1 - (index % side))),
+    }
+};
 
 fs.readFile(__dirname + '\\input.txt', 'utf8', function(_,data) {
     const lines = data.matchAll(/[0-9]/g);
     const trees = [...lines].map(a => Number(a[0]));
-    const size = trees.length;
-    const side = Math.sqrt(size);
 
-    const visibleTrees = trees.reduce((curry, height, index) => {
-        const treesToNorth = trees.filter((_, i) => i < index && i % side === index % side);
-        const treesToSouth = trees.filter((_, i) => i > index && i % side === index % side);
-        const treesToWest = trees.filter((_, i) => i < index && i >= index - (index % side));
-        const treesToEast = trees.filter((_, i) => i > index && i <= index + (side - 1 - (index % side)));
-        return curry
-            + ((!treesToNorth.length || (max(treesToNorth) ?? 0) < height
-                || !treesToSouth.length || (max(treesToSouth) ?? 0) < height
-                || !treesToWest.length || (max(treesToWest) ?? 0) < height
-                || !treesToEast.length || (max(treesToEast) ?? 0) < height
-            ) ? 1 : 0);
+    const visibleTrees = trees.reduce((carry, height, index) => {
+        return carry + (
+            reduce(
+                getTreeHeightsCardinals(trees, index),
+                (isVisible, treesInDirection) => isVisible || !treesInDirection.length || (max(treesInDirection) ?? 0) < height,
+                false
+            ) ? 1 : 0
+        );
     }, 0);
-
     log(visibleTrees);
+
+    const scenicScores = trees.map((height, index) =>
+        reduce(
+            getTreeHeightsCardinals(trees, index),
+            (score, treesInDirection) => {
+                const closestTreeSameHeightOrHigher = findIndex(treesInDirection, treeHeight => treeHeight >= height);
+                return score * Math.max(
+                    closestTreeSameHeightOrHigher === -1
+                        ? treesInDirection.length
+                        : closestTreeSameHeightOrHigher + 1,
+                    1
+                );
+            },
+            1   // simplification - each tree will have score of 1 at least
+        )
+    , 0);
+    log(max(scenicScores));
 });
