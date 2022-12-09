@@ -65,3 +65,28 @@ fs.readFile(__dirname + '\\input.txt', 'utf8', function(_,data) {
     });
     log(tailVisited.size);
 });
+
+// PART 2
+const KNOT_COUNT = 10;
+
+fs.readFile(__dirname + '\\input.txt', 'utf8', function(_,data) {
+    const lines = data.split(/\r\n/);
+    const head = new Knot(START, START);
+    const knots = [head];
+    for (let i = 1; i < KNOT_COUNT; i++) {
+        knots.push(clone(head));
+    }
+    const tailVisited = new Set([head.getCoords()]);
+    lines.forEach((line) => {
+        const [ direction, lenStr] = line.split(' ');
+        const length = Number(lenStr);
+        for (let i = 0; i < length; i++) {
+            head.move(direction);
+            for (let knotIndex = 1; knotIndex < KNOT_COUNT; knotIndex++) {
+                knots[knotIndex].follow(knots[knotIndex - 1]);
+            }
+            tailVisited.add(knots[KNOT_COUNT - 1].getCoords());
+        }
+    });
+    log(tailVisited.size);
+});
