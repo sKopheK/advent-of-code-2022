@@ -40,4 +40,11 @@ fs.readFile(__dirname + '\\input.txt', 'utf8', function(_,data) {
         return compare(eval(left), eval(right)) < 0 ? index + 1 : 0;
     });
     log(sum(correctOrder));
+
+    // part 2
+    const dividerPacket1 = [[2]];
+    const dividerPacket2 = [[6]];
+    const packets = [...data.split('\r\n').filter(x => !!x).map(eval), dividerPacket1, dividerPacket2];
+    const sorted = packets.sort(compare);
+    log((sorted.indexOf(dividerPacket1) + 1) * (sorted.indexOf(dividerPacket2) + 1));
 });
